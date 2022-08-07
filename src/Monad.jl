@@ -10,7 +10,10 @@ end
 function process(e_args)
     top = popfirst!(e_args)
 
-    if top.args[1] === :←
+    if typeof(top) === Symbol
+        m = top
+        var = :_
+    elseif top.args[1] === :←
         m = top.args[3]
         var = top.args[2]
     elseif top.head === :(=)
