@@ -1,0 +1,4 @@
+name = "Hask"
+uuid = "f3e91245-0c30-4955-8e50-5f8d617a427a"
+authors = ["alexander papageorge <alexander.papageorge@openlabsusa.org>"]
+version = "0.1.0"
