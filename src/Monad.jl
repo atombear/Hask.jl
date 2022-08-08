@@ -10,18 +10,23 @@ end
 function process(e_args)
     top = popfirst!(e_args)
 
+    statement = false
     if typeof(top) === Symbol
         m = top
         var = :_
+        statement = true
     elseif top.args[1] === :←
         m = top.args[3]
         var = top.args[2]
+        statement = false
     elseif top.head === :(=)
         m = nothing
         var = top.args[1]
+        statement = false
     else
         m = top
         var = :_
+        statement = true
     end
 
     if length(e_args) > 0
@@ -31,6 +36,7 @@ function process(e_args)
             return Expr(:call, :bind, m, Expr(:->, var, process(e_args)))
         end
     else
+        @assert statement
         return m
     end
 end
