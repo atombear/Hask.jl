@@ -1,15 +1,15 @@
-i found this an instructive exercise to understand monads, as well as their use and limitations in other more imperative
+I found this an instructive exercise to understand monads, as well as their use and limitations in other more imperative
 high level languages.
 
-compounding monads requires the use of nested functions, which is unwieldy without the availability of special syntax, the
-so called do-notation of Haskell. it is straightforward to implement this syntax in julia using native ast metaprogramming.
-ultimately, julia's type system does not support function-types, and thus makes the entire endeavor very difficult, as a
-central conceit of functional languages is using types to reason about and compound functions. it would seem that without
-true first-class support for functions, functional programming loses much of its appeal and usability. a few notes, some
+Compounding monads requires the use of nested functions, which is unwieldy without the availability of special syntax, the
+so called do-notation of Haskell. It is straightforward to implement this syntax in julia using native ast metaprogramming.
+Ultimately, julia's type system does not support function-types, and thus makes the entire endeavor very difficult, as a
+central conceit of functional languages is using types to reason about and compound functions. It would seem that without
+true first-class support for functions, functional programming loses much of its appeal and usability. A few notes, some
 instructive, follow regarding this implementation.
 
 
-# monads
+## monads
 
 Without providing another exposition on monads, category theory κλπ, it suffices to say that monads capture context in
 the form of data or closures, and have associated with them functions that afford composability, *in a way that appears
@@ -25,12 +25,59 @@ type `a`. Central to monadic programming is the ability to 'extract' an object f
 `struct` is a good candidate for specifying monadic types.
 
 
-# do-notation
+## do-notation
 
-Consider a simple 
+There is a fascinating correspondence between imperative programs and functional programs when every line in the former
+is an expression, except for the final line in the program, which must be a statement and is interpreted as the return
+value of the imperative program. The following arithmetic program for example:
 
+```
+x = 3
+y = 2 * x
+z = 8 + y
+z
+```
 
-# types
+may be written in functional form as
+
+```
+3     ↦ (\x ->
+2 * x ↦ (\y -> 
+8 + y ↦ (\z ->
+z)))
+```
+
+Where the symbol `↦` means left-application of the following function, ie `x ↦ f ≡ f(x)`. This can be attained in a
+relatively straightforward fashion in an imperative language by use of a continuation
+
+```
+cont = \v -> \f -> f(v)
+```
+
+With this in hand, the above can be expressed in any imperative language that supports higher order functions, and
+ideally syntax for anonymous (lambda) functions.
+
+```
+cont(3)     (\x ->
+cont(2 * x) (\y -> 
+cont(8 + y) (\z ->
+z)))
+```
+
+Even with the nested lambdas this reads thoroughly imperative. The translation from the first writing and the last is
+entirely programmatic and is accomplished in julia in straightforward fashion by leveraging its native ast 
+metaprogramming. A macro `@do_notation` exists to decorate a function, which will process the lines of the body of the
+function recursively, establishing the source of each line's evaluation (if any), calling `cont` on it, and 'pushing' it 
+into the subsequent functional context. Monads, by virtue of being like functions, have very similar semantics, with
+the following replacement: assignment `=` is replaced with `←`, and `cont(v)(f)` is replaced with `bind(v, f)` - the 
+monad's bind operation. Thus, a program that includes both monadic and functional 'steps' is parsed as above, allowing 
+for both types of 'assignment', and replacing accordingly.
+
+It should be obvious by now that the use of monads and the syntactic sugar of do-notation was entirely borrowed from
+Haskell, as part of a study on the use of functional and monadic aspects in imperative languages - especially those that
+feature metaprogramming capable of supporting new syntax.
+
+## types
 
 the type system in julia has some features that would make it well suited for hosting monads. A monad would naturally
 be expressed as a struct with free type parameters that are reflect the type that the monad is wrapping, which is to
