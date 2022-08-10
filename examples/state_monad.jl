@@ -18,7 +18,7 @@ function advance_list(v::Int) :: State{Int}
     function runState(s::ListState{Int}) :: Tuple{ListState{Int}, Int}
         return (s + [v], v+1)
     end
-    return State(runState)
+    return State(Int, runState)
 end
 advance_list(10)
 
