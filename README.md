@@ -19,7 +19,7 @@ runtime. The utility of course is to have functional code that can be written an
 appearance of conveying state through a computation. Of course an entire monadic composition must itself live within a
 function, but then those functions can be composed. From the perspective of composability, monads should be thought of
 as function-like, and in the broader understanding of category theory, form a category, like functions. In programming
-monads are a type class captures and contextualizes some object. The monad type `m a` is written in terms of its type
+monads are a type class that captures and contextualizes some object. The monad type `m a` is written in terms of its type
 constructor `m` which contextualizes some type `a`. The construction of a monad instance thus requires an instance of
 type `a`. Central to monadic programming is the ability to 'extract' an object from its context. In julia, a parametric 
 `struct` is a good candidate for specifying monadic types.
